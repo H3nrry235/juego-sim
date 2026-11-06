@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas de Información de Marketing - Juego Interactivo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        simTeal: '#00A896',
+                        simTealDark: '#028090',
+                        simAmber: '#F77F00',
+                        simAmberLight: '#FCBF49',
+                        simRed: '#E63946',
+                        simDark: '#1A1A1A',
+                        simBg: '#F8FAF9'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #F0F4F8;
+            color: #1A1A1A;
+        }
+
+        .border-bold {
+            border: 2.5px solid #1A1A1A;
+            box-shadow: 4px 4px 0px #1A1A1A;
+        }
+
+        .border-bold-sm {
+            border: 2px solid #1A1A1A;
+            box-shadow: 2px 2px 0px #1A1A1A;
+        }
+
+        .btn-press:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #1A1A1A;
+        }
+
+        /* Animated timer bar */
+        .timer-bar {
+            transition: width 1s linear;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #028090;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b-4 border-simDark py-4 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-simTeal text-white p-3 rounded-xl border-bold-sm flex items-center justify-center">
+                    <i class="fa-solid fa-chart-pie text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-extrabold text-simDark tracking-tight">SIM QUIZ MASTER</h1>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistemas de Información de Marketing</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex gap-2 w-full sm:w-auto justify-center">
+                <button id="nav-game-btn" onclick="switchTab('game')" class="px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-simAmber text-simDark btn-press transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-gamepad"></i> Juego Quiz
+                </button>
+                <button id="nav-guide-btn" onclick="switchTab('guide')" class="px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-white text-simDark hover:bg-gray-100 btn-press transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-book-open"></i> Folleto Teórico
+                </button>
+                <button id="nav-leaderboard-btn" onclick="switchTab('leaderboard')" class="px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-white text-simDark hover:bg-gray-100 btn-press transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-yellow-500"></i> Ranking
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto w-full p-4 sm:p-6 flex-grow">
+
+        <!-- ================= SECTION 1: QUIZ GAME ================= -->
+        <section id="tab-game" class="block">
+
+            <!-- Welcome Screen / Register Player -->
+            <div id="screen-welcome" class="bg-white rounded-2xl p-6 sm:p-10 border-bold text-center max-w-2xl mx-auto my-4">
+                <div class="inline-block bg-simAmberLight p-4 rounded-full border-bold-sm mb-4">
+                    <i class="fa-solid fa-brain text-4xl text-simDark"></i>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-simDark mb-2">Desafío SIM: Sistemas de Información de Marketing</h2>
+                <p class="text-gray-600 mb-6 text-sm sm:text-base"> Demuestra tus conocimientos respondiendo **10 preguntas**. Cada pregunta tiene un tiempo límite estricto de **10 segundos**.</p>
+                
+                <div class="bg-amber-50 border-2 border-amber-300 rounded-xl p-4 text-left mb-6 text-xs sm:text-sm text-amber-900">
+                    <p class="font-bold mb-1"><i class="fa-solid fa-lightbulb text-simAmber"></i> Reglas del juego:</p>
+                    <ul class="list-disc list-inside space-left space-y-1">
+                        <li>10 preguntas de opción múltiple sobre el SIM.</li>
+                        <li><strong>10 segundos por pregunta.</strong> Si el tiempo se agota, cuenta como error.</li>
+                        <li>Respuesta correcta = 100 puntos + bonus por rapidez.</li>
+                        <li>Ingresa tu nombre para entrar a la Tabla de Posiciones.</li>
+                    </ul>
+                </div>
+
+                <form onsubmit="startGame(event)" class="flex flex-col gap-4 max-w-md mx-auto">
+                    <div class="text-left">
+                        <label for="player-name" class="block font-bold text-sm text-simDark mb-1">Tu Nombre o Nombre de Equipo:</label>
+                        <input type="text" id="player-name" required placeholder="Ej: Maria Perez / Equipo SIM" 
+                            class="w-full px-4 py-3 border-bold-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-simTeal font-semibold">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-simTeal hover:bg-simTealDark text-white font-extrabold text-lg rounded-xl border-bold btn-press transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> ¡Iniciar Juego!
+                    </button>
+                </form>
+            </div>
+
+            <!-- Active Gameplay Screen -->
+            <div id="screen-gameplay" class="hidden flex-col gap-6">
+
+                <!-- Header Panel: Score, Timer & Question Progress -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl border-bold flex flex-wrap items-center justify-between gap-4">
+                    
+                    <!-- Question Counter -->
+                    <div class="flex items-center gap-2">
+                        <span class="bg-simDark text-white px-3 py-1 rounded-lg text-xs font-bold uppercase">Pregunta</span>
+                        <span id="question-number-badge" class="text-xl font-extrabold text-simDark">1 / 10</span>
+                    </div>
+
+                    <!-- Prominent Circular Score Indicator (ACIERTOS) -->
+                    <div class="flex items-center gap-3 bg-teal-50 px-5 py-2.5 rounded-xl border-bold-sm">
+                        <div class="w-10 h-10 rounded-full bg-simTeal text-white flex items-center justify-center font-extrabold text-xl shadow">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase font-extrabold text-gray-500 tracking-wider">Aciertos</p>
+                            <p id="aciertos-counter" class="text-2xl font-extrabold text-simTeal leading-none">0 <span class="text-xs text-gray-400 font-normal">/ 10</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Timer Badge -->
+                    <div class="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl border-bold-sm">
+                        <i class="fa-solid fa-clock text-simAmber text-xl"></i>
+                        <div>
+                            <p class="text-xs uppercase font-extrabold text-gray-500">Tiempo</p>
+                            <p id="timer-text" class="text-xl font-extrabold text-simDark leading-none">10s</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timer Progress Bar -->
+                <div class="w-full bg-gray-200 h-3 rounded-full border-2 border-simDark overflow-hidden">
+                    <div id="timer-bar" class="bg-simAmber h-full timer-bar w-full"></div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="bg-white rounded-2xl p-6 sm:p-8 border-bold">
+                    <h3 id="question-text" class="text-lg sm:text-2xl font-bold text-simDark mb-6 leading-snug">
+                        Cargando pregunta...
+                    </h3>
+
+                    <!-- Options Grid -->
+                    <div id="options-container" class="grid grid-cols-1 gap-3 sm:gap-4">
+                        <!-- Options injected dynamically by JS -->
+                    </div>
+
+                    <!-- Feedback Box (Shows correct/incorrect mini explanation) -->
+                    <div id="feedback-box" class="hidden mt-6 p-4 rounded-xl border-bold-sm text-sm font-semibold">
+                        <div id="feedback-status" class="flex items-center gap-2 text-base font-extrabold mb-1"></div>
+                        <p id="feedback-explanation" class="text-gray-700"></p>
+                    </div>
+
+                    <!-- Next Question Button -->
+                    <div class="mt-6 text-right">
+                        <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-3 bg-gray-300 text-gray-500 font-extrabold rounded-xl border-bold-sm cursor-not-allowed transition-all">
+                            Siguiente Pregunta <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Results Summary Screen -->
+            <div id="screen-results" class="hidden bg-white rounded-2xl p-6 sm:p-10 border-bold text-center max-w-2xl mx-auto my-4">
+                <div class="w-20 h-20 bg-simAmberLight border-bold rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-award text-4xl text-simDark"></i>
+                </div>
+                
+                <h2 class="text-3xl font-extrabold text-simDark mb-1">¡Juego Terminado!</h2>
+                <p id="result-player-greeting" class="text-gray-600 mb-6 font-semibold">Buen trabajo</p>
+
+                <!-- Big Score Card -->
+                <div class="bg-simBg p-6 rounded-2xl border-bold mb-6 grid grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-xs font-bold uppercase text-gray-500">Aciertos</p>
+                        <p id="final-aciertos" class="text-3xl font-extrabold text-simTeal">0 / 10</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-gray-500">Porcentaje</p>
+                        <p id="final-percentage" class="text-3xl font-extrabold text-simAmber">0%</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase text-gray-500">Puntaje Total</p>
+                        <p id="final-score" class="text-3xl font-extrabold text-simDark">0 pts</p>
+                    </div>
+                </div>
+
+                <div id="performance-feedback" class="p-4 rounded-xl border-bold-sm bg-teal-50 text-simTealDark font-bold mb-6 text-sm">
+                    <!-- Dynamic feedback string -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="resetGame()" class="flex-1 py-3 bg-simTeal text-white font-extrabold rounded-xl border-bold btn-press transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Volver a Jugar
+                    </button>
+                    <button onclick="switchTab('leaderboard')" class="flex-1 py-3 bg-simAmber text-simDark font-extrabold rounded-xl border-bold btn-press transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trophy"></i> Ver Tabla de Posiciones
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================= SECTION 2: FOLLETO TEÓRICO (STUDY GUIDE) ================= -->
+        <section id="tab-guide" class="hidden">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 border-bold mb-8">
+                <div class="border-b-2 border-gray-200 pb-4 mb-6 flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <span class="bg-simTeal text-white text-xs font-bold uppercase px-3 py-1 rounded-md">Folleto Explicativo</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-simDark mt-1">Sistemas de Información de Marketing (SIM)</h2>
+                    </div>
+                    <button onclick="window.print()" class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border-bold-sm rounded-lg text-xs font-bold text-simDark flex items-center gap-1">
+                        <i class="fa-solid fa-print"></i> Imprimir Folleto
+                    </button>
+                </div>
+
+                <!-- Intro -->
+                <div class="bg-teal-50 border-bold-sm p-4 rounded-xl mb-6">
+                    <h3 class="font-bold text-simTealDark text-lg mb-1"><i class="fa-solid fa-circle-info mr-1"></i> ¿Qué es un SIM?</h3>
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Un <strong>Sistema de Información de Marketing (SIM)</strong> es una estructura permanente e interrelacionada de personas, equipos y procedimientos diseñada para 
+                        <strong>recopilar, clasificar, analizar, evaluar y distribuir</strong> información oportuna, precisa y relevante a los encargados de tomar decisiones de marketing en una organización.
+                    </p>
+                </div>
+
+                <!-- 4 Components Grid -->
+                <h3 class="text-xl font-extrabold text-simDark mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-cubes text-simAmber"></i> Los 4 Subsistemas Principales del SIM
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    
+                    <!-- Card 1 -->
+                    <div class="border-bold-sm rounded-xl p-5 bg-amber-50/40">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-lg bg-simAmber text-white font-bold flex items-center justify-center text-sm border-bold-sm">1</span>
+                            <h4 class="font-extrabold text-base text-simDark">Registros Internos</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Origen:</strong> Datos generados dentro de la propia empresa.</p>
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            Incluye reportes de ventas, inventarios, costos, pedidos de clientes, cuentas por cobrar y estados financieros. Permite medir el desempeño operacional diario.
+                        </p>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="border-bold-sm rounded-xl p-5 bg-teal-50/40">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-lg bg-simTeal text-white font-bold flex items-center justify-center text-sm border-bold-sm">2</span>
+                            <h4 class="font-extrabold text-base text-simDark">Inteligencia de Marketing</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Origen:</strong> Fuentes externas y entorno competitivo.</p>
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            Procedimientos diarios para obtener información constante sobre cambios en la competencia, tendencias del mercado, leyes y comportamientos del consumidor a través de noticias, ferias comerciales y ejecutivos.
+                        </p>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="border-bold-sm rounded-xl p-5 bg-teal-50/40">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-lg bg-simTeal text-white font-bold flex items-center justify-center text-sm border-bold-sm">3</span>
+                            <h4 class="font-extrabold text-base text-simDark">Investigación de Mercados</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Origen:</strong> Estudios formales y específicos.</p>
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            Diseño, recopilación y análisis sistemático de datos enfocados en una situación o problema específico (por ejemplo: testear el lanzamiento de un producto nuevo o medir la satisfacción del cliente).
+                        </p>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="border-bold-sm rounded-xl p-5 bg-amber-50/40">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-8 h-8 rounded-lg bg-simAmber text-white font-bold flex items-center justify-center text-sm border-bold-sm">4</span>
+                            <h4 class="font-extrabold text-base text-simDark">Apoyo a las Decisiones (SAD)</h4>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Origen:</strong> Software y modelos cuantitativos.</p>
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            Herramientas estadísticas y sistemas informáticos que permiten a los gerentes simular escenarios (ej. predicción de ventas al variar precios) para tomar decisiones estratégicas fundamentadas.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Comparison Table -->
+                <h3 class="text-xl font-extrabold text-simDark mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-code-compare text-simTeal"></i> Cuadro Comparativo de Subsistemas
+                </h3>
+                <div class="overflow-x-auto mb-8 border-bold-sm rounded-xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-simDark text-white font-bold uppercase">
+                            <tr>
+                                <th class="p-3">Subsistema</th>
+                                <th class="p-3">Frecuencia</th>
+                                <th class="p-3">Enfoque</th>
+                                <th class="p-3">Ejemplo Práctico</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr>
+                                <td class="p-3 font-bold">Registros Internos</td>
+                                <td class="p-3">Continua / Diario</td>
+                                <td class="p-3">Rendimiento Histórico Interno</td>
+                                <td class="p-3">Revisión de volumen de ventas mensuales por sucursal.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-3 font-bold">Inteligencia de Mkt</td>
+                                <td class="p-3">Continua / Informal</td>
+                                <td class="p-3">Entorno y Competencia</td>
+                                <td class="p-3">Monitoreo de promociones de competidores en redes sociales.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-bold">Investigación de Mercados</td>
+                                <td class="p-3">Proyecto Específico</td>
+                                <td class="p-3">Problema Puntual del Negocio</td>
+                                <td class="p-3">Encuesta nacional para evaluar la aceptación de un empaque.</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="p-3 font-bold">Apoyo a Decisiones (SAD)</td>
+                                <td class="p-3">A Solicitud</td>
+                                <td class="p-3">Simulación y Análisis Complejo</td>
+                                <td class="p-3">Modelo estadístico para calcular elasticidad precio-demanda.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Key Benefits -->
+                <div class="bg-gray-50 p-5 rounded-xl border-bold-sm">
+                    <h4 class="font-extrabold text-simDark text-base mb-2"><i class="fa-solid fa-chart-line text-simTeal"></i> Importancia Estratégica del SIM</h4>
+                    <ul class="list-disc list-inside space-y-1 text-xs sm:text-sm text-gray-700">
+                        <li><strong>Reduce la incertidumbre:</strong> Permite tomar decisiones basadas en datos reales y no solo en intuición.</li>
+                        <li><strong>Respuesta rápida al mercado:</strong> Ayuda a reaccionar a tiempo ante movimientos de la competencia.</li>
+                        <li><strong>Optimización de recursos:</strong> Dirige los presupuestos de marketing hacia estrategias validadas.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: LEADERBOARD ================= -->
+        <section id="tab-leaderboard" class="hidden">
+            <div class="bg-white rounded-2xl p-6 sm:p-8 border-bold mb-8">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                    <div>
+                        <span class="bg-simAmber text-simDark text-xs font-bold uppercase px-3 py-1 rounded-md">Tabla de Honor</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-simDark mt-1"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i> Ranking de Mejores Puntajes</h2>
+                    </div>
+                    <button onclick="clearLeaderboard()" class="px-3 py-1.5 bg-red-50 text-simRed hover:bg-red-100 border-bold-sm rounded-lg text-xs font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-trash-can"></i> Reiniciar Tabla
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto border-bold-sm rounded-xl mb-4">
+                    <table class="w-full text-left">
+                        <thead class="bg-simDark text-white text-xs uppercase">
+                            <tr>
+                                <th class="p-3 text-center">Posición</th>
+                                <th class="p-3">Jugador</th>
+                                <th class="p-3 text-center">Aciertos</th>
+                                <th class="p-3 text-center">Puntaje</th>
+                                <th class="p-3 text-center">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-rows" class="divide-y divide-gray-200 text-sm font-semibold">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="text-xs text-gray-400 text-center font-medium">Los datos del ranking se guardan localmente en el navegador.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t-4 border-simDark py-4 px-4 text-center text-xs font-bold text-gray-600">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p>Juego Educativo de Sistemas de Información de Marketing (SIM)</p>
+            <p class="text-simTealDark">Diseñado para aprendizaje interactivo y evaluación continua</p>
+        </div>
+    </footer>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- 10 EXPLICIT SIM QUESTIONS AS REQUESTED ---
+        const questions = [
+            {
+                question: "1. ¿Cuál es el objetivo principal de un Sistema de Información de Marketing (SIM)?",
+                options: [
+                    "Reducir los costos de producción de la fábrica.",
+                    "Proporcionar información oportuna y precisa para la toma de decisiones comerciales.",
+                    "Diseñar únicamente la publicidad de la empresa.",
+                    "Exclusivamente auditar el departamento financiero."
+                ],
+                answer: 1,
+                explanation: "El SIM busca facilitar la toma de decisiones estratégicas mediante información relevante y oportuna."
+            },
+            {
+                question: "2. ¿A qué subsistema del SIM pertenece el seguimiento de las facturas de venta y los niveles de inventario actuales de la empresa?",
+                options: [
+                    "Inteligencia de Marketing.",
+                    "Investigación de Mercados.",
+                    "Registros Internos.",
+                    "Apoyo a las Decisiones de Marketing."
+                ],
+                answer: 2,
+                explanation: "Los Registros Internos recogen datos generados internamente por la empresa como ventas, pedidos e inventarios."
+            },
+            {
+                question: "3. Un gerente de marketing lee noticias de la competencia y asiste a ferias comerciales para enterarse de las últimas tendencias. ¿Qué subsistema utiliza?",
+                options: [
+                    "Inteligencia de Marketing.",
+                    "Registros Internos.",
+                    "Investigación de Mercados.",
+                    "Modelado predictivo."
+                ],
+                answer: 0,
+                explanation: "La Inteligencia de Marketing obtiene datos del entorno y de la competencia de manera constante e informal."
+            },
+            {
+                question: "4. Cuando una empresa contrata a una agencia externa para realizar un estudio enfocado en medir la satisfacción ante un nuevo producto, recurre a:",
+                options: [
+                    "Registros Internos.",
+                    "Inteligencia de Marketing.",
+                    "Investigación de Mercados.",
+                    "Canales logísticos de distribución."
+                ],
+                answer: 2,
+                explanation: "La Investigación de Mercados realiza estudios formales diseñados para problemas o proyectos específicos."
+            },
+            {
+                question: "5. ¿Qué componente del SIM ayuda a los directivos a simular diferentes escenarios de precios y ventas mediante modelos estadísticos?",
+                options: [
+                    "El subsistema de Apoyo a las Decisiones de Marketing (SAD).",
+                    "El libro diario contable.",
+                    "El buzón físico de quejas y sugerencias.",
+                    "El manual de identidad corporativa."
+                ],
+                answer: 0,
+                explanation: "El SAD proporciona software y modelos cuantitativos para simular y analizar decisiones complejas."
+            },
+            {
+                question: "6. ¿Cuál de las siguientes opciones describe mejor la diferencia entre Inteligencia de Marketing e Investigación de Mercados?",
+                options: [
+                    "La inteligencia es continua e informal; la investigación es formal y para un problema específico.",
+                    "La inteligencia la hace el departamento legal; la investigación recursos humanos.",
+                    "La investigación no utiliza datos numéricos y la inteligencia sí.",
+                    "No existe ninguna diferencia, son términos idénticos."
+                ],
+                answer: 0,
+                explanation: "La Inteligencia monitorea el entorno de forma continua; la Investigación atiende un objetivo concreto puntualmente."
+            },
+            {
+                question: "7. ¿Qué tipo de datos componen principalmente el Subsistema de Registros Internos?",
+                options: [
+                    "Datos macroeconómicos internacionales.",
+                    "Datos internos de la propia empresa (pedidos, ventas, costos).",
+                    "Opiniones de los usuarios en redes sociales de la competencia.",
+                    "Resultados de censos poblacionales nacionales."
+                ],
+                answer: 1,
+                explanation: "Los datos de ventas, contabilidad y pedidos internos conforman la base de los Registros Internos."
+            },
+            {
+                question: "8. ¿Por qué es crucial que un SIM sea un sistema continuo y permanente en lugar de un esfuerzo aislado?",
+                options: [
+                    "Porque las leyes tributarias cambian cada diez años.",
+                    "Porque los mercados, gustos de consumidores y competidores cambian constantemente.",
+                    "Porque los empleados de marketing se aburren sin informes.",
+                    "Para justificar el salario del personal administrativo."
+                ],
+                answer: 1,
+                explanation: "El dinamismo del mercado exige un flujo constante de información para adaptar las estrategias continuamente."
+            },
+            {
+                question: "9. ¿Cuál de los siguientes elementos NO forma parte de la estructura clásica de un SIM?",
+                options: [
+                    "Registros internos.",
+                    "Inteligencia de marketing.",
+                    "Maquinaria y línea de ensamblaje de productos.",
+                    "Investigación de mercados."
+                ],
+                answer: 2,
+                explanation: "La maquinaria de fábrica pertenece a producción/operaciones, no a los subsistemas de información de marketing."
+            },
+            {
+                question: "10. ¿Qué beneficio directo obtiene una empresa que implementa un buen SIM frente a otra que toma decisiones por intuición?",
+                options: [
+                    "Elimina por completo el riesgo financiero en todas sus inversiones.",
+                    "Reduce la incertidumbre y optimiza la asignación de recursos comerciales.",
+                    "Obliga a los clientes a comprar sus productos de forma obligatoria.",
+                    "Evita la necesidad de pagar impuestos comerciales."
+                ],
+                answer: 1,
+                explanation: "Un SIM minimiza riesgos y permite tomar decisiones respaldadas por evidencia factual y análisis."
+            }
+        ];
+
+        // --- GAME STATE VARIABLES ---
+        let currentQuestionIndex = 0;
+        let aciertosCount = 0;
+        let score = 0;
+        let playerName = "";
+        let timerInterval = null;
+        let timeLeft = 10;
+        let optionSelected = false;
+
+        // --- NAVIGATION TABS ---
+        function switchTab(tabName) {
+            document.getElementById('tab-game').classList.add('hidden');
+            document.getElementById('tab-guide').classList.add('hidden');
+            document.getElementById('tab-leaderboard').classList.add('hidden');
+
+            document.getElementById('nav-game-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-white text-simDark hover:bg-gray-100 btn-press transition-all flex items-center gap-2";
+            document.getElementById('nav-guide-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-white text-simDark hover:bg-gray-100 btn-press transition-all flex items-center gap-2";
+            document.getElementById('nav-leaderboard-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-white text-simDark hover:bg-gray-100 btn-press transition-all flex items-center gap-2";
+
+            if (tabName === 'game') {
+                document.getElementById('tab-game').classList.remove('hidden');
+                document.getElementById('nav-game-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-simAmber text-simDark btn-press transition-all flex items-center gap-2";
+            } else if (tabName === 'guide') {
+                document.getElementById('tab-guide').classList.remove('hidden');
+                document.getElementById('nav-guide-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-simTeal text-white btn-press transition-all flex items-center gap-2";
+            } else if (tabName === 'leaderboard') {
+                document.getElementById('tab-leaderboard').classList.remove('hidden');
+                document.getElementById('nav-leaderboard-btn').className = "px-4 py-2 font-bold text-sm rounded-xl border-bold-sm bg-simAmber text-simDark btn-press transition-all flex items-center gap-2";
+                renderLeaderboard();
+            }
+        }
+
+        // --- GAMEPLAY FUNCTIONS ---
+        function startGame(e) {
+            e.preventDefault();
+            const input = document.getElementById('player-name').value.trim();
+            if (!input) return;
+
+            playerName = input;
+            aciertosCount = 0;
+            score = 0;
+            currentQuestionIndex = 0;
+
+            document.getElementById('screen-welcome').classList.add('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-gameplay').classList.remove('hidden');
+            document.getElementById('screen-gameplay').classList.add('flex');
+
+            updateAciertosCounter();
+            loadQuestion();
+        }
+
+        function updateAciertosCounter() {
+            document.getElementById('aciertos-counter').innerHTML = `${aciertosCount} <span class="text-xs text-gray-400 font-normal">/ 10</span>`;
+        }
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            optionSelected = false;
+
+            const q = questions[currentQuestionIndex];
+
+            // Reset Next Button
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.className = "px-6 py-3 bg-gray-300 text-gray-500 font-extrabold rounded-xl border-bold-sm cursor-not-allowed transition-all";
+
+            // Reset Feedback Box
+            document.getElementById('feedback-box').classList.add('hidden');
+
+            // Render Header Text
+            document.getElementById('question-number-badge').innerText = `${currentQuestionIndex + 1} / 10`;
+            document.getElementById('question-text').innerText = q.question;
+
+            // Render Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            const optionLetters = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 rounded-xl border-bold-sm bg-white hover:bg-teal-50 text-left font-semibold text-simDark transition-all flex items-center gap-3 btn-press";
+                btn.onclick = () => selectAnswer(idx);
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg bg-gray-100 text-simDark font-extrabold flex items-center justify-center text-sm border-2 border-simDark flex-shrink-0">${optionLetters[idx]}</span>
+                    <span class="text-sm sm:text-base">${opt}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            // Start 10-second timer
+            timeLeft = 10;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const timerText = document.getElementById('timer-text');
+            const timerBar = document.getElementById('timer-bar');
+
+            timerText.innerText = `${timeLeft}s`;
+            const percentage = (timeLeft / 10) * 100;
+            timerBar.style.width = `${percentage}%`;
+
+            if (timeLeft <= 3) {
+                timerBar.className = "bg-simRed h-full timer-bar";
+                timerText.className = "text-xl font-extrabold text-simRed leading-none animate-pulse";
+            } else {
+                timerBar.className = "bg-simAmber h-full timer-bar";
+                timerText.className = "text-xl font-extrabold text-simDark leading-none";
+            }
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (optionSelected) return;
+            optionSelected = true;
+            clearInterval(timerInterval);
+
+            const q = questions[currentQuestionIndex];
+            const isCorrect = (selectedIndex === q.answer);
+
+            const optionBtns = document.querySelectorAll('.option-btn');
+
+            optionBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:bg-teal-50');
+
+                if (idx === q.answer) {
+                    btn.classList.add('bg-green-100', 'border-green-600', 'text-green-900');
+                    btn.querySelector('span').classList.add('bg-green-600', 'text-white');
+                } else if (idx === selectedIndex && !isCorrect) {
+                    btn.classList.add('bg-red-100', 'border-red-600', 'text-red-900');
+                    btn.querySelector('span').classList.add('bg-red-600', 'text-white');
+                }
+            });
+
+            if (isCorrect) {
+                aciertosCount++;
+                score += 100 + (timeLeft * 10); // Base score + speed bonus
+                updateAciertosCounter();
+                showFeedback(true, "¡Correcto!", q.explanation);
+            } else {
+                showFeedback(false, "Incorrecto", q.explanation);
+            }
+
+            enableNextButton();
+        }
+
+        function handleTimeOut() {
+            if (optionSelected) return;
+            optionSelected = true;
+
+            const q = questions[currentQuestionIndex];
+            const optionBtns = document.querySelectorAll('.option-btn');
+
+            optionBtns.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.answer) {
+                    btn.classList.add('bg-green-100', 'border-green-600', 'text-green-900');
+                }
+            });
+
+            showFeedback(false, "¡Se agotó el tiempo!", q.explanation);
+            enableNextButton();
+        }
+
+        function showFeedback(isCorrect, title, text) {
+            const box = document.getElementById('feedback-box');
+            const status = document.getElementById('feedback-status');
+            const explanation = document.getElementById('feedback-explanation');
+
+            box.classList.remove('hidden', 'bg-green-50', 'bg-red-50', 'border-green-400', 'border-red-400');
+
+            if (isCorrect) {
+                box.classList.add('bg-green-50', 'border-green-500');
+                status.className = "flex items-center gap-2 text-base font-extrabold text-green-700";
+                status.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${title}`;
+            } else {
+                box.classList.add('bg-red-50', 'border-red-500');
+                status.className = "flex items-center gap-2 text-base font-extrabold text-red-700";
+                status.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${title}`;
+            }
+
+            explanation.innerText = text;
+        }
+
+        function enableNextButton() {
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.className = "px-6 py-3 bg-simAmber hover:bg-simAmberLight text-simDark font-extrabold rounded-xl border-bold btn-press transition-all";
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        function finishGame() {
+            document.getElementById('screen-gameplay').classList.add('hidden');
+            document.getElementById('screen-gameplay').classList.remove('flex');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            const percentage = Math.round((aciertosCount / 10) * 100);
+
+            document.getElementById('result-player-greeting').innerText = `Excelente esfuerzo, ${playerName}`;
+            document.getElementById('final-aciertos').innerText = `${aciertosCount} / 10`;
+            document.getElementById('final-percentage').innerText = `${percentage}%`;
+            document.getElementById('final-score').innerText = `${score} pts`;
+
+            const feedbackEl = document.getElementById('performance-feedback');
+            if (percentage >= 80) {
+                feedbackEl.className = "p-4 rounded-xl border-bold-sm bg-green-50 text-green-800 font-bold mb-6 text-sm";
+                feedbackEl.innerHTML = "🏆 ¡Excelente Dominio del SIM! Tienes un conocimiento sólido de los Sistemas de Información de Marketing.";
+            } else if (percentage >= 50) {
+                feedbackEl.className = "p-4 rounded-xl border-bold-sm bg-amber-50 text-amber-900 font-bold mb-6 text-sm";
+                feedbackEl.innerHTML = "👍 ¡Buen Intento! Has comprendido los conceptos básicos, pero te recomendamos repasar el folleto teórico.";
+            } else {
+                feedbackEl.className = "p-4 rounded-xl border-bold-sm bg-red-50 text-red-800 font-bold mb-6 text-sm";
+                feedbackEl.innerHTML = "📚 Necesitas Repasar. Revisa el Folleto Teórico para dominar los 4 subsistemas del SIM.";
+            }
+
+            saveToLeaderboard(playerName, aciertosCount, score);
+        }
+
+        function resetGame() {
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-welcome').classList.remove('hidden');
+        }
+
+        // --- LEADERBOARD LOCALSTORAGE SYSTEM ---
+        function getLeaderboard() {
+            const data = localStorage.getItem('sim_quiz_leaderboard');
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveToLeaderboard(name, aciertos, points) {
+            const leaderboard = getLeaderboard();
+            const dateStr = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' });
+
+            leaderboard.push({
+                name: name,
+                aciertos: aciertos,
+                score: points,
+                date: dateStr
+            });
+
+            // Sort by aciertos (desc), then score (desc)
+            leaderboard.sort((a, b) => b.aciertos - a.aciertos || b.score - a.score);
+
+            // Keep top 20
+            const trimmed = leaderboard.slice(0, 20);
+            localStorage.setItem('sim_quiz_leaderboard', JSON.stringify(trimmed));
+        }
+
+        function renderLeaderboard() {
+            const leaderboard = getLeaderboard();
+            const tbody = document.getElementById('leaderboard-rows');
+            tbody.innerHTML = '';
+
+            if (leaderboard.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-4 text-center text-gray-400 text-xs">Aún no hay registros en la tabla de posiciones. ¡Sé el primero en jugar!</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            leaderboard.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = index % 2 === 0 ? "bg-white" : "bg-gray-50";
+
+                let medal = `${index + 1}º`;
+                if (index === 0) medal = '🥇 1º';
+                if (index === 1) medal = '🥈 2º';
+                if (index === 2) medal = '🥉 3º';
+
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-extrabold text-simDark">${medal}</td>
+                    <td class="p-3 text-simDark">${escapeHtml(item.name)}</td>
+                    <td class="p-3 text-center font-extrabold text-simTeal">${item.aciertos} / 10</td>
+                    <td class="p-3 text-center font-extrabold text-simAmber">${item.score} pts</td>
+                    <td class="p-3 text-center text-gray-500 text-xs">${item.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearLeaderboard() {
+            if (confirm("¿Estás seguro de que deseas borrar toda la tabla de posiciones?")) {
+                localStorage.removeItem('sim_quiz_leaderboard');
+                renderLeaderboard();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
